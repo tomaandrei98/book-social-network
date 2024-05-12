@@ -1,31 +1,56 @@
+version: '3.3'
+
 services:
   postgres:
-    container_name: postgres-sql-bsn
-    image: postgres
+    image: 'postgres:latest'
+    container_name: 'postgres'
     environment:
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: password
-      PGDATA: /var/lib/postgresql/data
-      POSTGRES_DB: book_social_network
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'secret'
+      PGPASSWORD: 'password'
+      PGDATA: '/var/lib/postgresql/data'
+      POSTGRES_DB: 'book_social_network'
     volumes:
-      - postgres:/data/postgres
+      - 'pgdata:/var/lib/postgresql/data'
     ports:
-      - 5432:5432
+      - '5432:5432'
     networks:
-      - spring-demo
-    restart: unless-stopped
+      - 'spring-demo'
+    restart: 'unless-stopped'
+
+  pgadmin:
+    image: 'dpage/pgadmin4:6.18'
+    container_name: 'pgadmin'
+    ports:
+      - '8080:8080'
+    environment:
+      PGPASSWORD: 'secret'
+      POSTGRES_DB: 'book_social_network'
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'secret'
+      PGADMIN_DEFAULT_EMAIL: 'admin@tomaandreidev.com'
+      PGADMIN_DEFAULT_PASSWORD: 'admin123'
+      PGADMIN_LISTEN_PORT: '8080'
+    volumes:
+      - 'pgadmin:/root/.pgadmin'
+    networks:
+      - 'spring-demo'
+    depends_on:
+      - 'postgres'
 
   mail-dev:
-    container_name: mail-dev-bsn
-    image: maildev/maildev
+    image: 'maildev/maildev'
+    container_name: 'mail'
     ports:
-      - 1080:1080
-      - 1025:1025
+      - '1080:1080'
+      - '1025:1025'
 
 networks:
   spring-demo:
     driver: bridge
 
 volumes:
-  postgres:
+  pgdata:
+    driver: local
+  pgadmin:
     driver: local
